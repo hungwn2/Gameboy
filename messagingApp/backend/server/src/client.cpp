@@ -51,6 +51,14 @@ std::string client::receiveMessage(){
     return std::string(buffer);
 }
 
+std::string client::hashPassword(const std::string& password){
+    std::hash<std::string> hasher;
+    size_t hash_value=hasher(password);
+    std::ostringstream oss;
+    oss<std::hex<<hash_value;
+    return oss.str();
+}
+
 // void error(const char *msg){
 //     perror(msg);
 //     exit(0);

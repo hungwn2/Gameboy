@@ -12,19 +12,16 @@
 #include <iomanip>
 
 
-class Database{
-    private:
-        std::string connection_string;
 
-    public:
-        Database(const std::string& conn_str): connection_string(conn_str){
-            initTables();
-        }
-        void initTables(){
-            try{
-                pqxx::connection conn(connection_string);
-                pqxx::work txn(conn);
-
+    Database::Database(const std::string& conn_str): connection_string(conn_str){
+        initTables();
+    }
+    void Database::initTables(){
+            //initialize prisma schema
+        try{
+            pqxx::connection conn(connection_string);
+            pqxx::work txn(conn);
+                //user data
                 txn.exec(R"(
                     CREATE TABE IF NOT EXISTS users(
                     id SERIAL PRIMARY KEY,
@@ -35,8 +32,10 @@ class Database{
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                     )");
+
+                //message data
                 txn.exec(R"(
-                    CRETE TABLE IF NOT EXISTS messagesP
+                    CRETE TABLE IF NOT EXISTS messages(
                     id SERIAL PRIMARY KEY,
                     sender_id INTEGER REFRENCES users(id),
                     receiver_id INTEGER REFRENCES users(id),
@@ -44,9 +43,9 @@ class Database{
                     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     
                     ))");
-
-                        txn.exec(R"(
-                CREATE TABLE IF NOT EXISTS user_sessions (
+                //session data
+                txn.exec(R"(
+                    CREATE TABLE IF NOT EXISTS user_sessions (
                     user_id INTEGER REFERENCES users(id),
                     session_token VARCHAR(255) UNIQUE NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -57,12 +56,12 @@ class Database{
             txn.commit();
             CROW_LOG_INFO << "Database tables initialized";
         }
-        }catch (const std::exception& e){
+        catch (const std::exception& e){
             CROW_LOG_ERROR<<"Database intialization error";
         }
     }
 
-    bool createUser(const std::string &username, const std::string& email, const std::string &email){
+    bool Database::createUser(const std::string &username, const std::string& email, const std::string &email, const std::string &password_hash){
         try{
             pqxx::connection conn(connection_string);
             pqxx::work txn(conn);
@@ -78,7 +77,9 @@ class Database{
             return false;
         }
     }
-    Json::Value getUser(const std::string& username){
+
+    //Fecthes User Data from User Connections Table
+    Json::Value Database::getUser(const std::string& username){
         Json::Value user;
         try{
             pqxx::connection conn(connection_string);
@@ -97,11 +98,13 @@ class Database{
         }catch(const std::exception& e){
             CROW_LOG_ERROR<"Get user error: "<<e.what();
         }
-
-        bool saveMessage(int sender_id, int receiver_id, const std::string& content){
-            try{
-                pqxx::connection conn(connection_string);
-                pqxx::work txn(conn);
+    }
+    
+    //Saves messages in User's Connection Table
+    bool Database::saveMessage(int sender_id, int receiver_id, const std::string& content, const std::string& password_hash){
+        try{
+            pqxx::connection conn(connection_string);
+            pqxx::work txn(conn);
                 txn.exec_params(
                     "INSERT INTO messages (sender_id, receiver, content) VALUES ($1, $2, $3)",
                     sender_id, receiver_id, content
@@ -115,13 +118,15 @@ class Database{
             }
         }
 
-        std::vector<Json::Value> getMessages(int user1_id, int user2_id, int limit=50){
-            std::vector<Json::Value> messages;
-            try{
-                pqxx::connection conn(connection_string);
-                pqxx::work txn(conn);
-                pqxx:result result=txn.exce_params(R"(
-                    SELECT mid, m.sender_id, m.receover_id, m.content, m.sent_at, u.username
+
+    //Get Messages from User Connections Table    
+    std::vector<Json::Value> Database::getMessages(int user1_id, int user2_id, int limit=50){
+        std::vector<Json::Value> messages;
+        try{
+            pqxx::connection conn(connection_string);
+            pqxx::work txn(conn);
+            pqxx:result result=txn.exce_params(R"(
+                SELECT m.id, m.sender_id, m.receover_id, m.content, m.sent_at, u.username
                     FROM messages m 
                     JOIN users u ON m.sender_id=u.id
                     WHERE (m.sender_id=$1 AND m.receiver_id=$2)
@@ -145,10 +150,17 @@ class Database{
                 }
                 return messages;
             }
-        };
+
+            std::string Database::hashPassword(const std::string& password){
+                std::hash<std::string> hasher;
+                std::stringstream ss;
+                ss<<"Hash_"<<std::hex<<hasher(password);
+                return ss.str();
+            } 
+
+    
     
 
 
 
 
-bool
