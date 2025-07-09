@@ -1,3 +1,0 @@
-cargo:rustc-link-search=/mnt/c/Users/User/rust/my_project/target/thumbv7m-none-eabi/debug/build/stm32l4-786e9096a8bccfb8/out
-cargo:rerun-if-changed=src/stm32l4x3/device.x
-cargo:rerun-if-changed=build.rs
