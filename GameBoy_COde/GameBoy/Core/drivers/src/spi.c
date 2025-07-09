@@ -1,37 +1,62 @@
 
+/**
+*@file gpio.c
+*@brief GPIO driver implementation for STM32F4xx MCUs.
+*
+*@author GameBoy Project
+*@date25
+*/
+
 
 #include "spi.h"
 
 
-void SPI_PeriClockControl(SPI_TypeDef *pSPIx, uint8_t EnOrDi){
-     if (EnOrDi==ENABLE){
-        if (pSPIX ==SPI1) RCC->APB2ENR|=(1<<12);
-        else if(pSPIx==SPI2) RCC->APB1ENR|=(1<<14);
-     }
-     else{
-        if (pSPIx == SPI1) RCC->APB2ENR &=~(1<<12);
-        else if(pSPIx==SPI2) RCC->APB1ENR|=(1<<14);
-     }
+
+void SPI_GPIO_init(void){
+	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;
+	GPIOA->MODER &=~ ((3U<<(5*2))|(3U<<(7*2)));
+	GPIOA->MODER|=((2U<<(5*2))|(2U<<7*2)));
+
+	GPIOA->AFR[0]&=~((0xF<<(4*5))|(0x5<<(4*7)));
+	GPIO->AFR[0] |=((0x5<<(4*5))|(0x5 <<(4*7)));
+
+	GPIOA->OSPEEDR|=((3U<<(5*2))|(3U<<(7*2)));
+	GPIOA->OTYPER &=~((1U<<5)|(1U<<7));
+	GPIOA->PUPDR &= ~((3U<<(5*2))|(3U<<(7*2)));
 }
 
-void SPI_Init(SPI_Handle_t *pSPIHandle){
-    
+
+void SPI1_init(uint8_t master, uint8_t cpol, uint8_t cpha, uint8_t baud){
+	RCC->APB2ENR |=RCC_APB2ENR_SPIEN;
+	SPI1->CR1=0;
+
+	if (ma)
 }
-void SPI_DeInit(SPI_TypeDef *pSPIx);
 
-void SPI_SendData(SPI_TypeDef *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
-void SPI_ReceiveData(SPI_TypeDef *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
-uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
-uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
 
-/*
- * IRQ configuration and ISR handling
- */
-void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
-void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority);
-void SPI_ISRHandling(SPI_Handle_t *pHandle);
+void SPI1_enable(void){
+	SPI1->CR1|=SPI_CR1_SPE;
+}
 
-/*
- * Application callback
- */
-void SPI_ApplicationEventCallback(SPI_Handle_t *pHandle, uint8_t AppEv);
+void SPI_DISABLE(void){
+	SPI1->CR1 &=~SPI_CR1_SPE;
+}
+
+
+void SPI1_transmit_bytes(uint8_t *data, uint32_t len){
+	for (uint32_t i=0; i<len; i++){
+		SPI1_transmit(data[i]);
+	}
+}
+
+void SPI_transmit(uint8_t data){
+	while (!(SPI1->SR & SPI_SR_TXE));
+	*((__IO uint8_t *)&SPI1->DR)= data;
+	while (SPI->SR & SPI_SR_BSY);
+}
+
+
+
+
+
+

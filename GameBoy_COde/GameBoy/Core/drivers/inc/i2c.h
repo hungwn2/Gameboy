@@ -1,50 +1,38 @@
 /**
-*@file stm32f407xx_i2c.h
-*@brief provide APIs for I2C communications.
+*@file i2c.h
+*@brief Provide APIs for I2C communication.
 *
-*This header file provide APIs for communication between stm32f407xx MCU and I/O devices through I2C protocol.
+*This header file provides functions for interfacing with I2C peripherals
+*on the STM32F401RE, suitable for your Mario game system (e.g., screen, sensors).
 *
-*@author Tran Thanh Nhan
-*@date 31/07/2019
+*@author Henry
+*@date July 7, 2025
 */
 
-#ifndef STM32F407XX_I2C_H
-#define STM32F407XX_I2C_H
+#ifndef I2C_H_
+#define I2C_H_
 
-#include "stm32f4xx.h"                  // Device header
-// #include "stm32f407xx_common_macro.h"
-// #include "stm32f407xx_rcc.h"
+#include "stm32f4xx.h"
 #include <stdint.h>
-#include <stdlib.h>
 
+/***********************************************************************
+Macro definitions
+***********************************************************************/
+#define I2C_WRITE 0
+#define I2C_READ  1
 
-typedef struct{
-    uint32_t clockSpeed;
-    uint8_t ownAddress1;
-    uint8_t addrssingMode;
-    uint8_t dualAddressMode;
-    uint8_t ownAddress2;
-    uint8_t generalCallMode;
-    uint8_t noStretchMode;
-}I2C_Config_t;
+#define I2C_ACK_ENABLE  1
+#define I2C_ACK_DISABLE 0
 
+/***********************************************************************
+Function prototypes
+***********************************************************************/
+void I2C_init(I2C_TypeDef *I2Cx);
+void I2C_start(I2C_TypeDef *I2Cx, uint8_t address, uint8_t direction);
+void I2C_write(I2C_TypeDef *I2Cx, uint8_t data);
+uint8_t I2C_read_ack(I2C_TypeDef *I2Cx);
+uint8_t I2C_read_nack(I2C_TypeDef *I2Cx);
+void I2C_stop(I2C_TypeDef *I2Cx);
+void I2C_GPIO_init(I2C_TypeDef *I2Cx);
 
-typedef struct{
-    I2C_TypeDef *instance;
-    I2C_Config_t config;
-}I2C_Handle_t;
-
-
-void I2C_PeriClockControl(I2C_TypeDef *pI2Cx, uint8_t EnOrDi);
-void I2C_Init(I2C_Typedef *pI2Cx, uint8_t EnOrDi);
-
-void I2C_Init(I2C_Handle_t *pI2CHandle);
-void I2C_DeInit(I2C_TypeDef *pI2Cx);
-void I2C_MasterSendData(I2C_Handle_t *pI2cHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t SlaveAddr);
-void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t SlaveAddr);
-
-
-
-void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle);
-void I2C_ER_IRQHandling(I2C_Handle_t *pI2CHandle);
-#endif
+#endif /* I2C_H_ */

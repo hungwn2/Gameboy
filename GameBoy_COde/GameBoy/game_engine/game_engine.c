@@ -6,14 +6,29 @@
 #define SCREEN_HEIGHT 240
 #define FRAME_RATE 30
 
+
+//physics constants
+#define GRAVITY 0.5f
+#define PLAYER_SPEED 2.5f
+#define JUM_FORCE 10.0f
+#define MAX_FALL_SPEED 8.0f
+
+
 typedef struct{
     float x;
-    flaot y;
-    float dx;
-    float dy;
+    float y;
+    float dx, dy;
+    float width, height
+    float vx;
+    float vy;
     bool is_alive;
+    bool on_ground;
 }GameObject Properties_t;
 
+typedef struct{
+    float x, y;
+
+}
 //copy lua code
 typedef struct {
     uint16_t width;
@@ -22,12 +37,25 @@ typedef struct {
 } GameObject_Image_t;
 
  
-typedef struct {
-    GameObject_Properties_t properties;
-    GameObject_Image_t image;
-} Space_Object_t;
+// typedef struct {
+//     GameObject_Properties_t properties;
+//     GameObject_Image_t image;
+// } Space_Object_t;
 
-Space_Object_t player_ship;
+// Space_Object_t player_ship;
+
+GameObject_t player;
+GameObject_t enemies [MAX_ENEMIES];
+const char level_map[][];
+
+Camera_t camer={0,0};
+
+volatile bool g_frame_ready=false;
+
+
+int main(void){
+
+}
 
 //start game loop
 volatile bool g_fram_ready=false;
@@ -59,4 +87,9 @@ void update_game_logic(void){
     //handle player inputs and use adc
     player_ship.properties.x+=player_ship.properties.dx;
     player_ship.properties.y+=player_ship.properties.dy;
+}
+
+
+int main(void){
+    
 }
