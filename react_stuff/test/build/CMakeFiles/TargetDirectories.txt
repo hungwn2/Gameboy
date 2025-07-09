@@ -1,3 +1,0 @@
-C:/Users/User/react_stuff/test/build/CMakeFiles/MessagingApp.dir
-C:/Users/User/react_stuff/test/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/User/react_stuff/test/build/CMakeFiles/ZERO_CHECK.dir
