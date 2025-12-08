@@ -1,0 +1,54 @@
+/*
+ * uart.c
+ *
+ *  Created on: Nov 6, 2025
+ *      Author: henryhungwy
+ */
+#include "uart.h"
+#include "stm32c0xx.h"
+
+#define GPIOAEN (RCC_IOPENR_GPIOAEN)
+#define UART2EN (RCC_APBENR1_USART2EN)
+
+
+#define MODER2_MASK (GPIO_MODER_MODE2_Msk)
+#define MODER2_AF (GPIO_MODER_MODE2_1)
+
+#define AFR0_AF1_2 (1U<< GPIO_AFRL_AFSEL2_Pos)
+#define AFR0_MASK2 (GPIO_AFRL_AFSEL2_Msk)
+
+#define CR1_TE (USART_CR1_TE)
+#define CR1_UE (USART_CR1_UE)
+#define SR_TXE (USART_ISR_TXE_TXFNF)
+
+#define PCLK 48000000UL
+#define BAUD_RATE 115200
+
+
+static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baudrate){
+	return (uint16_t)((periph_clk+(baudrate/2U))/baudrate);
+}
+
+void uart_init(uint32_t periph_clk){
+	RCC->IOPENR|=GPIOAEN;
+	RCC->APBENR1|=UART2EN;
+	//SET PA2 to AF, USART
+	GPIOA->MODER &=~MODER2_MASK;
+	GPIOA->MODER |=MODER2_AF;
+	GPIOA->AFR[0]&=~AFR0_MASK2;
+	GPIOA->AFR[0]|=AFR0_AF1_2;
+
+	USART2->BRR=compute_uart_bd(periph_clk, BAUD_RATE);
+	USART2->CR1 =CR1_TE | CR1_UE;
+}
+
+void uart_write_byte(int ch){
+	while(!(USART2->ISR & SR_TXE)){}
+	USART2->TDR =(ch & 0xFF);
+}
+
+void uart_write_string (const char* str){
+	while (*str){
+		uart_write_byte(*str++);
+	}
+}

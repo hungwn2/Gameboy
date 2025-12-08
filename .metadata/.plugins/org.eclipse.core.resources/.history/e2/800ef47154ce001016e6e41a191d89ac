@@ -1,0 +1,19 @@
+/*
+ * gpio.h
+ *
+ *  Created on: Nov 13, 2025
+ *      Author: henryhungwy
+ */
+
+#ifndef INC_GPIO_H_
+#define INC_GPIO_H_
+
+
+void gpio_init(uint16_t pin){
+	RCC->IOPENR|=GPIOAEN;
+	 GPIOA->MODER &= ~(3U << pin); // Clear bits
+    GPIOA->MODER |= (1U << pin);
+}
+
+
+#endif /* INC_GPIO_H_ */

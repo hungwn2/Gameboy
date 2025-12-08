@@ -1,0 +1,75 @@
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+/* Clocks */
+#define GPIOAEN   RCC_IOPENR_GPIOAEN
+#define USART2EN  RCC_APBENR1_USART2EN
+
+/* GPIO helpers: PA2/PA3 -> AF1 (USART2) */
+#define MODER_MASK(pin)   (3U << ((pin) * 2))
+#define MODER_AF(pin)     (2U << ((pin) * 2))
+#define AFRL_MASK(pin)    (0xFU << ((pin) * 4))
+#define AFRL_AF1(pin)     (0x1U << ((pin) * 4))
+
+/* USART flags */
+#define TX_READY (USART_ISR_TXE_TXFNF)
+
+static inline uint16_t compute_brr(uint32_t clk_hz, uint32_t baud)
+{
+    // oversampling by 16
+    return (uint16_t)((clk_hz + (baud/2U)) / baud);
+}
+
+void uart2_init(void)
+{
+    /* 1) Enable clocks */
+    RCC->IOPENR  |= GPIOAEN;
+    RCC->APBENR1 |= USART2EN;
+    (void)RCC->IOPENR;
+    (void)RCC->APBENR1;
+
+    /* 2) Ensure USART2 kernel clock = PCLK (default: USART2SEL=00) */
+    // This is just to be explicit; reset default is already 00 = PCLK.
+    RCC->CCIPR &= ~(0x3U << 2); // USART2SEL[3:2] = 00 => PCLK
+
+    /* 3) Configure PA2 (TX) and PA3 (RX) as AF1 */
+    GPIOA->MODER &= ~(MODER_MASK(2) | MODER_MASK(3));
+    GPIOA->MODER |=  (MODER_AF(2)   | MODER_AF(3));
+
+    GPIOA->AFR[0] &= ~(AFRL_MASK(2) | AFRL_MASK(3));
+    GPIOA->AFR[0] |=  (AFRL_AF1(2)  | AFRL_AF1(3));
+
+    // Optional pull-ups for cleaner idle high
+    GPIOA->PUPDR &= ~((3U<<(2*2)) | (3U<<(3*2)));
+    GPIOA->PUPDR |=  ((1U<<(2*2)) | (1U<<(3*2)));
+
+    /* 4) Configure USART2: 8-N-1, oversampling by 16 */
+    USART2->CR1 &= ~USART_CR1_UE; // disable during config
+    USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_OVER8);
+    USART2->CR2 &= ~USART_CR2_STOP;
+    USART2->CR3 = 0;
+
+    /* 5) Baud = 115200 from PCLK = 16 MHz (reset default) */
+    uint32_t pclk = 16000000UL;  // default after reset
+    USART2->BRR = compute_brr(pclk, 115200U); // ≈ 139 (0x008B)
+
+    /* 6) Enable TX (and RX if needed) */
+    USART2->CR1 |= USART_CR1_TE;
+    // USART2->CR1 |= USART_CR1_RE; // if you want to read later
+
+    USART2->CR1 |= USART_CR1_UE; // enable USART
+    (void)USART2->ISR;           // dummy read
+}
+
+void uart2_write_char(char c)
+{
+    while ((USART2->ISR & TX_READY) == 0) {}
+    USART2->TDR = (uint8_t)c;
+}
+
+void uart2_write_str(const char *s)
+{
+    while (*s) {
+        uart2_write_char(*s++);
+    }
+}

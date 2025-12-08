@@ -1,0 +1,37 @@
+/*
+ * my_vector.c
+ *
+ *  Created on: Nov 22, 2025
+ *      Author: henryhungwy
+ */
+
+
+#include "my_vector.h"
+
+
+my_vector Vectorf2Vector(Vectorf v){
+    return NewVector((int32_t)v.x, (int32_t)v.y);
+}
+my_vector NewVector(int32_t x, int32_t y){
+	my_vector v={.x=x, .y=y};
+	return v;
+}
+my_vectorf NewVectorf(float x, float y){
+	my_vectorf v={.x=x, .y=y};
+	return v;
+}
+
+my_vector VectorAdd(Vector v, Vector w){
+    return NewVector(v.x + w.x, v.y + w.y);
+
+}
+my_vectorf VectorfAdd(Vector v, Vectorf w){
+    return NewVectorf(v.x + w.x, v.y + w.y);
+}
+my_vectorf VectorffAdd(Vectorf v, Vectorf w){
+    return NewVectorf(v.x + w.x, v.y + w.y);
+}
+my_vectorf VectorfMul(Vectorf v, float t){
+	return NewVectorf(v.x * t, v.y * t);
+
+}

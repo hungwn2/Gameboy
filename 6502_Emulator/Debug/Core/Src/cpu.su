@@ -1,0 +1,8 @@
+../Core/Src/cpu.c:6:20:set_zn_flag	16	static
+../Core/Src/cpu.c:13:20:op_adc	24	static
+../Core/Src/cpu.c:30:6:cpu_reset	32	static
+../Core/Src/cpu.c:41:9:fetch_imn	32	static
+../Core/Src/cpu.c:47:10:fetch_abs	32	static
+../Core/Src/cpu.c:57:20:push_stack	16	static
+../Core/Src/cpu.c:62:23:pull_stack	16	static
+../Core/Src/cpu.c:67:6:cpu_step	48	static

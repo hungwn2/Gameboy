@@ -1,0 +1,2 @@
+../Core/peripherals/Src/adc.c:23:6:adc_init	2
+../Core/peripherals/Src/adc.c:41:10:adc_read	2

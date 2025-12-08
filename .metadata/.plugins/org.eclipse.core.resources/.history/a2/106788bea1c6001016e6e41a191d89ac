@@ -1,0 +1,16 @@
+/*
+ * joystic.h
+ *
+ *  Created on: Nov 21, 2025
+ *      Author: henryhungwy
+ */
+
+#ifndef DRIVERS_INC_JOYSTIC_H_
+#define DRIVERS_INC_JOYSTIC_H_
+
+#include "stm32f4xx.h"
+#include "../../peripherals/inc/adc.h"
+#include "../../peripherals/inc/gpio.h"
+
+
+#endif /* DRIVERS_INC_JOYSTIC_H_ */

@@ -1,0 +1,25 @@
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+void uart_init(void);
+void uart_write_str(const char *s);
+static void delay(volatile uint32_t count);
+
+int main(void)
+{
+    // DON'T touch the clocks. Use reset defaults (HSI16 @ 16 MHz).
+    uart_init();
+
+    while (1)
+    {
+        uart_write_str("\r\nHELLO FROM NUCLEO-C071RB\r\n");
+        delay(800000); // crude delay (not precise, just slows spam)
+    }
+}
+
+static void delay(volatile uint32_t count)
+{
+    while (count--) {
+        __NOP();
+    }
+}

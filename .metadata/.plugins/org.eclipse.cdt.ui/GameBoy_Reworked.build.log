@@ -1,0 +1,58 @@
+20:24:15 **** Incremental Build of configuration Debug for project GameBoy_Reworked ****
+make -j7 all 
+arm-none-eabi-gcc "../Core/src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/src/main.d" -MT"Core/src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/src/main.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/adc.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/adc.d" -MT"Core/peripherals/Src/adc.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/adc.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/engine.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/engine.d" -MT"Core/peripherals/Src/engine.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/engine.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/i2c.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/i2c.d" -MT"Core/peripherals/Src/i2c.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/i2c.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/spi.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/spi.d" -MT"Core/peripherals/Src/spi.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/spi.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/tim.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/tim.d" -MT"Core/peripherals/Src/tim.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/tim.o"
+arm-none-eabi-gcc "../Core/peripherals/Src/uart.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/peripherals/Src/uart.d" -MT"Core/peripherals/Src/uart.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/peripherals/Src/uart.o"
+arm-none-eabi-gcc "../Core/drivers/src/button.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/drivers/src/button.d" -MT"Core/drivers/src/button.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/drivers/src/button.o"
+In file included from ../Core/src/../drivers/inc/joystick.h:13,
+                 from ../Core/src/main.c:4:
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h: In function 'gpio_init':
+arm-none-eabi-gcc "../Core/drivers/src/ili9341.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/drivers/src/ili9341.d" -MT"Core/drivers/src/ili9341.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/drivers/src/ili9341.o"
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:13:12: error: 'RCC_TypeDef' has no member named 'IOPENR'
+   13 |         RCC->IOPENR|=GPIOAEN;
+      |            ^~
+../Core/peripherals/Src/spi.c: In function 'spi1_transmit':
+../Core/peripherals/Src/spi.c:71:17: warning: variable 'temp' set but not used [-Wunused-but-set-variable]
+   71 |         uint8_t temp;
+      |                 ^~~~
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:13:22: error: 'GPIOAEN' undeclared (first use in this function); did you mean 'GPIOE'?
+   13 |         RCC->IOPENR|=GPIOAEN;
+      |                      ^~~~~~~
+      |                      GPIOE
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:13:22: note: each undeclared identifier is reported only once for each function it appears in
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:14:12: error: 'RCC_TypeDef' has no member named 'IOPENR'
+   14 |         RCC->IOPENR|=GPIOBEN;
+      |            ^~
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:14:22: error: 'GPIOBEN' undeclared (first use in this function); did you mean 'GPIOB'?
+   14 |         RCC->IOPENR|=GPIOBEN;
+      |                      ^~~~~~~
+      |                      GPIOB
+../Core/src/main.c: In function 'gpio_toggle':
+../Core/src/main.c:11:16: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   11 | int main(void) {
+      |                ^
+../Core/src/../drivers/inc/../../peripherals/inc/gpio.h:27:6: warning: type of 'uin' defaults to 'int' [-Wimplicit-int]
+   27 | void gpio_toggle(uin)
+      |      ^~~~~~~~~~~
+../Core/src/../drivers/inc/joystick.h:48:9: error: declaration for parameter 'joystick_read_direction' but no such parameter
+   48 | uint8_t joystick_read_direction(uint8_t X_axis_ADC_channel, uint8_t Y_axis_ADC_channel);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+../Core/src/../drivers/inc/joystick.h:47:6: error: declaration for parameter 'joystick_init' but no such parameter
+   47 | void joystick_init(uint8_t X_axis_ADC_channel, uint8_t Y_axis_ADC_channel);
+      |      ^~~~~~~~~~~~~
+../Core/src/main.c:48: error: expected '{' at end of input
+make: *** [Core/src/subdir.mk:34: Core/src/main.o] Error 1
+make: *** Waiting for unfinished jobs....
+../Core/drivers/src/button.c:8:10: fatal error: button.h: No such file or directory
+    8 | #include "button.h"
+      |          ^~~~~~~~~~
+compilation terminated.
+make: *** [Core/drivers/src/subdir.mk:25: Core/drivers/src/button.o] Error 1
+"make -j7 all" terminated with exit code 2. Build might be incomplete.
+
+20:24:16 Build Failed. 12 errors, 2 warnings. (took 673ms)
+

@@ -1,0 +1,37 @@
+#include "uart.h"
+#include "gpio.h"
+#include <stdbool.h>
+
+static void to_hex_char(uint8_t nibble){
+	  nibble &= 0x0F;
+	    if (nibble < 10) {
+	        return nibble + '0';
+	    }
+	    return (nibble - 10) + 'A';
+}
+
+static void term_print_hex(uint32_t val, uint8_t digits) {
+    // Print from the most significant digit down
+    for (int i = (digits - 1) * 4; i >= 0; i -= 4) {
+        uart_write_byte(to_hex_char((val >> i)));
+    }
+}
+
+static void term_print_uint(uint32_t n){
+	if (n==0){
+		uart_write_byte('0');
+		return;
+	}
+	if (n>=0){
+		term_print_uint(n/10);
+	}
+    uart_write_byte((n % 10) + '0');
+
+}
+
+void term_init(void){
+    uart_write_string("\r\n--- 6502 Emulator Started ---\r\n");
+}
+
+
+void update_term(void);

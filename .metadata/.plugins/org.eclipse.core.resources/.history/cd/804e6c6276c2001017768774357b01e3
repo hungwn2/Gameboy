@@ -1,0 +1,62 @@
+// main.c
+
+#include "systick.h"
+#include "uart.h"
+#include <stdint.h>
+#include "stm32c0xx.h"
+
+// Default reset clock on STM32C071: HSISYS = HSI48 / 4 = 12 MHz
+#define SYS_CLOCK_FREQ 12000000UL
+#define TARGET_CYCLES_PER_SECOND 1000000  // 1.0 MHz
+#define CYCLES_PER_MILLISECOND (TARGET_CYCLES_PER_SECOND / 1000)
+
+
+void delay_ms(uint32_t ms)
+{
+    uint32_t start_time = systick_get_ms();
+    while ((systick_get_ms() - start_time) < ms) {
+        // busy wait
+    }
+}
+
+static void SystemClock_Config(void)
+{
+    // 1. Enable HSI48 oscillator
+    RCC->CR |= RCC_CR_HSI48ON;
+
+    // 2. Wait until HSI48 is ready
+    while (!(RCC->CR & RCC_CR_HSI48RDY)) {
+        // Wait
+    }
+
+    // 3. Set HSI48 as the system clock source
+    RCC->CFGR &= ~RCC_CFGR_SW_Msk; // Clear SW bits
+    RCC->CFGR |= RCC_CFGR_SW_HSI48; // Select HSI48
+
+    // 4. Wait until HSI48 is in use
+    while ((RCC->CFGR & RCC_CFGR_SWS_Msk) != RCC_CFGR_SWS_HSI48) {
+        // Wait
+    }
+}
+
+
+
+
+int main(void)
+{
+    // DO NOT reconfigure RCC here – use default 12 MHz
+    SystemClock_Config();
+
+    systick_init(SYS_CLOCK_FREQ);
+    uart_init(SYS_CLOCK_FREQ);
+
+    uart_write_string("\r\n--- UART DRIVER TEST ---\r\n");
+    uart_write_string("CLOCK = 12 MHz (reset default)\r\n");
+    uart_write_string("If you see this, UART is good.\r\n");
+
+    while (1)
+    {
+        uart_write_string("HEARTBEAT - OK\r\n");
+        delay_ms(1000);
+    }
+}

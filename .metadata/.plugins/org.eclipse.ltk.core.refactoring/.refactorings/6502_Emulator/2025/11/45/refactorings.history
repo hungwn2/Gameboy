@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;6502_Emulator/Core/Src/gpu.c&apos; to &apos;gui.c&apos;" description="Rename resource &apos;gpu.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/Src/gpu.c" name="gui.c" stamp="1762491276444" updateReferences="true"/>
+</session>

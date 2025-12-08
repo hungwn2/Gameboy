@@ -1,0 +1,105 @@
+#include "uart.h"
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+/* Clocks */
+#define GPIOAEN   RCC_IOPENR_GPIOAEN
+#define USART2EN  RCC_APBENR1_USART2EN
+
+/* GPIO helpers */
+#define MODER_MASK(pin)   (3U << ((pin) * 2))
+#define MODER_AF(pin)     (2U << ((pin) * 2))
+#define AFRL_MASK(pin)    (0xFU << ((pin) * 4))
+#define AFRL_AF1(pin)     (0x1U << ((pin) * 4))
+
+/* USART flags */
+#define TX_READY (USART_ISR_TXE_TXFNF)
+
+static inline uint32_t apb_clk_from_rcc(void)
+{
+    // AHB prescaler (HPRE)
+    static const uint16_t ahb_tbl[16] = {
+        1,1,1,1, 1,1,1,1, 2,4,8,16, 64,128,256,512
+    };
+    // APB prescaler (PPRE)
+    static const uint8_t apb_tbl[8] = {
+        1,1,1,1, 2,4,8,16
+    };
+
+    uint32_t cfgr = RCC->CFGR;
+    uint32_t hpre = (cfgr >> RCC_CFGR_HPRE_Pos) & 0xF;
+    uint32_t ppre = (cfgr >> RCC_CFGR_PPRE_Pos) & 0x7;
+
+    // Base on CMSIS global (kept up-to-date by your SystemClock_Config)
+    uint32_t hclk = SystemCoreClock / ahb_tbl[hpre];
+    uint32_t pclk = hclk / apb_tbl[ppre];
+    return pclk;
+}
+
+static inline uint32_t usart2_kernel_clk_hz(void)
+{
+    // On STM32C0, RCC->CCIPR USART2SEL is bits [3:2]:
+    // 00: PCLK, 01: SYSCLK, 10: HSI16, 11: LSE
+    uint32_t sel = (RCC->CCIPR >> 2) & 0x3U;
+    switch (sel) {
+        default: // 00 = PCLK
+            return apb_clk_from_rcc();
+        case 0x1: // SYSCLK
+            return SystemCoreClock;
+        case 0x2: // HSI16
+            return 16000000UL;
+        case 0x3: // LSE (likely 32768 Hz if fitted)
+            return 32768UL;
+    }
+}
+
+static inline uint16_t compute_brr(uint32_t ker_clk_hz, uint32_t baud)
+{
+    // oversampling by 16
+    return (uint16_t)((ker_clk_hz + (baud/2U)) / baud);
+}
+
+void uart_init(uint32_t /*unused_periph_clk*/)
+{
+    /* Clocks */
+    RCC->IOPENR  |= GPIOAEN;
+    RCC->APBENR1 |= USART2EN;
+
+    /* Force USART2 kernel clock = PCLK (optional but removes ambiguity) */
+    // CCIPR.USART2SEL = 00 -> PCLK
+    RCC->CCIPR &= ~(0x3U << 2);
+
+    (void)RCC->IOPENR; (void)RCC->APBENR1;
+
+    /* GPIO PA2/PA3 -> AF1 */
+    GPIOA->MODER &= ~(MODER_MASK(2) | MODER_MASK(3));
+    GPIOA->MODER |=  (MODER_AF(2)   | MODER_AF(3));
+    GPIOA->AFR[0] &= ~(AFRL_MASK(2) | AFRL_MASK(3));
+    GPIOA->AFR[0] |=  (AFRL_AF1(2)  | AFRL_AF1(3));
+    GPIOA->PUPDR &= ~((3U<<(2*2)) | (3U<<(3*2)));
+    GPIOA->PUPDR |=  ((1U<<(2*2)) | (1U<<(3*2))); // PU
+
+    /* USART config */
+    USART2->CR1 &= ~USART_CR1_UE;
+    USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_OVER8); // 8N1, ovs16
+    USART2->CR2 &= ~USART_CR2_STOP; // 1 stop
+    USART2->CR3 = 0;
+
+    uint32_t ker = usart2_kernel_clk_hz();       // <-- actual clock
+    USART2->BRR = compute_brr(ker, 9600u);     // set correct BRR for that clock
+
+    USART2->CR1 |= USART_CR1_TE; // TX enable (add RE if needed)
+    USART2->CR1 |= USART_CR1_UE; // USART enable
+    (void)USART2->ISR;
+}
+
+void uart_write_byte(int ch)
+{
+    while ((USART2->ISR & TX_READY) == 0) {}
+    USART2->TDR = (uint8_t)ch;
+}
+
+void uart_write_string(const char* s)
+{
+    while (*s) uart_write_byte(*s++);
+}

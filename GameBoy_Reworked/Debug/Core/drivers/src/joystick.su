@@ -1,0 +1,2 @@
+../Core/drivers/src/joystick.c:10:6:joystick_init	16	static
+../Core/drivers/src/joystick.c:14:9:joystick_read_direction	32	static

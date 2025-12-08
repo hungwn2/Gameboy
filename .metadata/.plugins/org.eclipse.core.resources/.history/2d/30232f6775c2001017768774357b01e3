@@ -1,0 +1,78 @@
+#include "uart.h"
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+#define GPIOAEN   (RCC_IOPENR_GPIOAEN)
+#define UART2EN   (RCC_APBENR1_USART2EN)
+
+#define MODER2_MASK   (GPIO_MODER_MODE2_Msk)
+#define MODER2_AF     (GPIO_MODER_MODE2_1)
+
+#define AFR0_AF1_2    (1U << GPIO_AFRL_AFSEL2_Pos)
+#define AFR0_MASK2    (GPIO_AFRL_AFSEL2_Msk)
+
+#define CR1_TE        (USART_CR1_TE)
+#define CR1_UE        (USART_CR1_UE)
+#define SR_TXE        (USART_ISR_TXE_TXFNF)
+
+#define BAUD_RATE     115200U
+
+static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baudrate)
+{
+    // oversampling by 16
+    return (uint16_t)((periph_clk + (baudrate / 2U)) / baudrate);
+}
+
+void uart_init(uint32_t periph_clk)
+{
+    // 1) Enable clocks
+    RCC->IOPENR  |= GPIOAEN;
+    RCC->APBENR1 |= UART2EN;
+    (void)RCC->IOPENR;
+    (void)RCC->APBENR1;
+
+    // 2) Ensure USART2 kernel clock = PCLK (default is already 00 = PCLK)
+    // CCIPR.USART2SEL bits [3:2]
+    RCC->CCIPR &= ~(0x3U << 2);
+
+    // 3) PA2 (TX) AF1
+    GPIOA->MODER &= ~MODER2_MASK;
+    GPIOA->MODER |=  MODER2_AF;
+
+    GPIOA->AFR[0] &= ~AFR0_MASK2;
+    GPIOA->AFR[0] |=  AFR0_AF1_2;
+
+    // Optional: PA3 as RX AF1 too, for completeness
+    GPIOA->MODER &= ~(3U << (3 * 2));
+    GPIOA->MODER |=  (2U << (3 * 2));
+    GPIOA->AFR[0] &= ~(0xFU << (3 * 4));
+    GPIOA->AFR[0] |=  (0x1U << (3 * 4));
+
+    // 4) Configure USART2
+    USART2->CR1 &= ~CR1_UE;                      // disable before config
+
+    // 8N1, oversampling by 16
+    USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_OVER8);
+    USART2->CR2 &= ~USART_CR2_STOP;
+    USART2->CR3  = 0;
+
+    // 5) Baud: use REAL peripheral clock (SystemCoreClock) passed in
+    USART2->BRR = compute_uart_bd(periph_clk, BAUD_RATE);
+
+    // 6) Enable TX and USART
+    USART2->CR1 |= CR1_TE;
+    USART2->CR1 |= CR1_UE;
+}
+
+void uart_write_byte(int ch)
+{
+    while (!(USART2->ISR & SR_TXE)) {}
+    USART2->TDR = (uint8_t)(ch & 0xFF);
+}
+
+void uart_write_string(const char* str)
+{
+    while (*str) {
+        uart_write_byte(*str++);
+    }
+}

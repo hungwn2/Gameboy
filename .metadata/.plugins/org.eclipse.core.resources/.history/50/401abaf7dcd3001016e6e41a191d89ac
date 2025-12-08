@@ -1,0 +1,73 @@
+// main.c
+
+#include "systick.h"
+#include "uart.h"
+#include "cpu.h"
+#include "bus.h"
+#include "gui.h"
+#include <stdint.h>
+#include "stm32c0xx.h"
+
+// Default reset clock on STM32C071: HSISYS = HSI48 / 4 = 12 MHz
+#define SYS_CLOCK_FREQ 12000000UL
+#define TARGET_CYCLES_PER_SECOND 1000000  // 1.0 MHz
+#define CYCLES_PER_MILLISECOND (TARGET_CYCLES_PER_SECOND / 1000)
+
+cpu_t cpu;
+
+
+void delay_ms(uint32_t ms)
+{
+    uint32_t start_time = systick_get_ms();
+    while ((systick_get_ms() - start_time) < ms) {
+        // busy wait
+    }
+}
+
+int main(void)
+{
+
+    systick_init(SYS_CLOCK_FREQ);
+    uart_init(SYS_CLOCK_FREQ);
+    bus_reset();
+    cpu_reset(&cpu);
+    term_init();
+    term_update_dashboard(&cpu);
+
+
+    uint32_t last_time_ms=systick_get_ms();
+    uint64_t cycle_budget=0;
+    uint32_t last_gui_update_ms=last_time_ms;
+
+    while (1)
+        {
+            uint32_t current_time_ms = systick_get_ms();
+            uint32_t elapsed_ms = current_time_ms - last_time_ms;
+            systick_handler();
+            if (elapsed_ms > 0) {
+                cycle_budget += (CYCLES_PER_MILLISECOND * elapsed_ms);
+                last_time_ms = current_time_ms;
+            }
+
+            if (cycle_budget > 0)
+            {
+                uint64_t cycles_before = cpu.cycles;
+                cpu_step(&cpu); // Run one instruction
+                uint64_t cycles_ran = cpu.cycles - cycles_before;
+
+                if (cycles_ran <= cycle_budget)
+                {
+                    cycle_budget -= cycles_ran;
+                }
+                else{
+                    cycle_budget = 0; // Overspent
+                }
+            }
+
+            // Update Terminal GUI (10x per second)
+            if (current_time_ms - last_gui_update_ms > 100) // 100ms = 10Hz
+            {
+                last_gui_update_ms = current_time_ms;
+            }
+        }
+}

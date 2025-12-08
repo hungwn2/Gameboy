@@ -1,0 +1,26 @@
+2025-10-26 14:55:42,501 [INFO] Activator:176 - 
+
+
+2025-10-26 14:55:42,503 [INFO] Activator:177 - !SESSION log4j initialized
+2025-10-26 14:55:44,209 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2025-10-26 14:55:46,471 [INFO] LogOutputStream:77 - [STDOUT_REDIRECT] 
+2025-10-26 14:55:48,706 [INFO] ApplicationProperties:184 - Using Application install path: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659
+2025-10-26 14:55:48,719 [INFO] DbMcusXml:78 - Set database path to: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//mcu/
+2025-10-26 14:55:48,720 [INFO] ApiDb:274 - Set plugin database path to: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//plugins/boardmanager/
+2025-10-26 14:55:48,720 [WARN] ApiDb:259 - Overriding images path with different value:  => /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//plugins/mcufinder/images/
+2025-10-26 14:55:48,725 [INFO] ApiDb:250 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/
+2025-10-26 14:55:48,725 [INFO] DbMcusAds:125 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/
+2025-10-26 14:55:48,727 [INFO] CrossReferenceDbSqlite:203 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/cs/
+2025-10-26 14:55:48,893 [INFO] RulesReader:64 - Compatibility file has been processed (317 Rules)
+2025-10-26 14:55:48,964 [INFO] DbMcusXml:78 - Set database path to: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//mcu/
+2025-10-26 14:55:48,965 [INFO] ApiDb:274 - Set plugin database path to: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//plugins/boardmanager/
+2025-10-26 14:55:48,965 [INFO] ApiDb:261 - Set plugin images path to: /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db//plugins/mcufinder/images/
+2025-10-26 14:55:48,965 [WARN] DbFile:41 - Overriding database path with different value: /Users/henryhungwy/.stmcufinder/plugins/mcufinder/ => /Users/henryhungwy/.stmcufinder/plugins/mcufinder
+2025-10-26 14:55:48,965 [INFO] ApiDb:250 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/
+2025-10-26 14:55:48,965 [WARN] DbFile:41 - Overriding database path with different value: /Users/henryhungwy/.stmcufinder/plugins/mcufinder/ => /Users/henryhungwy/.stmcufinder/plugins/mcufinder
+2025-10-26 14:55:48,966 [INFO] DbMcusAds:125 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/
+2025-10-26 14:55:48,966 [WARN] DbFile:41 - Overriding database path with different value: /Users/henryhungwy/.stmcufinder/plugins/mcufinder/ => /Users/henryhungwy/.stmcufinder/plugins/mcufinder
+2025-10-26 14:55:48,966 [WARN] DbFile:41 - Overriding database path with different value: /Users/henryhungwy/.stmcufinder/plugins/mcufinder/ => /Users/henryhungwy/.stmcufinder/plugins/mcufinder
+2025-10-26 14:55:48,966 [INFO] CrossReferenceDbSqlite:203 - Set database path to: /Users/henryhungwy/.stmcufinder/plugins/mcufinder//mcu/cs/
+2025-10-26 14:55:49,079 [INFO] MainPanel:274 - HeapMemory: 268435456
+2025-10-26 14:55:49,321 [INFO] McuFinderGlobals:63 - Set McuFinder mode to 2 (CubeIDE integrated)

@@ -1,0 +1,13 @@
+/* ecs.h */
+#pragma once
+#include <stdint.h>
+
+#define ECS_MAX_ENTITIES   64U
+#define ECS_COMP_POSITION  (1U << 0)
+#define ECS_COMP_VELOCITY  (1U << 1)
+#define ECS_COMP_SPRITE    (1U << 2)
+#define ECS_COMP_PLAYER    (1U << 3)
+/* add more as needed */
+
+/* Entity is just an index 0..ECS_MAX_ENTITIES-1 */
+typedef uint8_t EntityID;

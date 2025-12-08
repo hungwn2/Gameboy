@@ -1,0 +1,12 @@
+f GPIO_H
+#define GPIO_H
+
+#include <stdbool.h> // Required for the 'bool' type
+
+
+void led_init(void);
+
+=
+void gpio_write_led(bool state);
+
+#endif // GPIO_H

@@ -1,0 +1,89 @@
+/*
+ * uart.c
+ *
+ * NUCLEO-C071RB, USART2 on PA2 (TX) / PA3 (RX)
+ */
+#include "uart.h"
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+/* RCC enables */
+#define GPIOAEN   (RCC_IOPENR_GPIOAEN)
+#define USART2EN  (RCC_APBENR1_USART2EN)
+
+/* GPIO: PA2/PA3 alternate function */
+#define MODER_AF(pin)         (2U << ((pin) * 2))      // 10b = AF
+#define MODER_MASK(pin)       (3U << ((pin) * 2))
+#define AFRL_MASK(pin)        (0xFU << ((pin) * 4))
+#define AFRL_AF1(pin)         (0x1U << ((pin) * 4))    // AF1 for USART2 on PA2/PA3
+
+/* USART convenience flags */
+#define TX_READY   (USART_ISR_TXE_TXFNF)   // TXE (or TXFNF) flag
+
+/* Round BRR for oversampling by 16 */
+static inline uint16_t compute_uart_brr(uint32_t periph_clk, uint32_t baud)
+{
+    return (uint16_t)((periph_clk + (baud / 2U)) / baud);
+}
+
+void uart_init(uint32_t periph_clk_hz)
+{
+    /* --- Clocks --- */
+    RCC->IOPENR  |= GPIOAEN;          // GPIOA clock
+    RCC->APBENR1 |= USART2EN;         // USART2 clock
+
+    /* Make sure USART2 kernel clock = PCLK (CCIPR.USART2SEL = 00) */
+    // On STM32C0, USART2SEL is bits [3:2] in RCC->CCIPR.
+    RCC->CCIPR &= ~(0x3U << 2);
+
+    /* Small barrier after enabling peripheral clocks */
+    (void)RCC->IOPENR; (void)RCC->APBENR1;
+
+    /* --- GPIO: PA2 (TX), PA3 (RX) -> AF1 --- */
+    // MODER: set to AF
+    GPIOA->MODER &= ~(MODER_MASK(2) | MODER_MASK(3));
+    GPIOA->MODER |=  (MODER_AF(2)   | MODER_AF(3));
+
+    // AFRL: AF1 on PA2/PA3
+    GPIOA->AFR[0] &= ~(AFRL_MASK(2) | AFRL_MASK(3));
+    GPIOA->AFR[0] |=  (AFRL_AF1(2)  | AFRL_AF1(3));
+
+    // Optional: weak pull-ups to keep lines idle-high clean
+    GPIOA->PUPDR &= ~( (3U<<(2*2)) | (3U<<(3*2)) );
+    GPIOA->PUPDR |=   ( (1U<<(2*2)) | (1U<<(3*2)) ); // 01b = pull-up
+
+    /* --- USART2 config --- */
+    USART2->CR1 &= ~USART_CR1_UE;            // Disable before config
+
+    // 8 data bits, no parity, oversampling by 16
+    USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_OVER8);
+    // 1 stop bit
+    USART2->CR2 &= ~USART_CR2_STOP;
+    // No special flow control
+    USART2->CR3 = 0;
+
+    // Baud rate from *actual kernel clock* (we forced it to PCLK)
+    USART2->BRR = compute_uart_brr(periph_clk_hz, 115200U);
+
+    // Enable transmitter (and receiver if you want to read)
+    USART2->CR1 |= USART_CR1_TE;            // add USART_CR1_RE if needed
+
+    // Enable USART
+    USART2->CR1 |= USART_CR1_UE;
+
+    // Optional sync read
+    (void)USART2->ISR;
+}
+
+void uart_write_byte(int ch)
+{
+    while ((USART2->ISR & TX_READY) == 0) { }
+    USART2->TDR = (uint8_t)(ch & 0xFF);
+}
+
+void uart_write_string(const char* s)
+{
+    while (*s) {
+        uart_write_byte(*s++);
+    }
+}

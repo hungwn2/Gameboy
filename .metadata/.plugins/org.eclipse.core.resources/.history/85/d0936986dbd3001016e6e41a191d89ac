@@ -1,0 +1,30 @@
+/*
+ * uart.h
+ *
+ * Bare-metal UART driver for USART2 (PA2) for STM32C0.
+ */
+
+#ifndef UART_H
+#define UART_H
+
+#include <stdint.h>
+
+/**
+ * @brief Initializes USART2, assuming a 48MHz PCLK.
+ * Configures PA2 as TX at 115200 baud.
+ */
+void uart_init(uint32_t periph_clk);
+
+/**
+ * @brief Writes a single byte/character to the UART.
+ * @param ch The byte to send.
+ */
+void uart_write_byte(int ch);
+
+/**
+ * @brief Writes a null-terminated string to the UART.
+ * @param str The string to send.
+ */
+void uart_write_string(const char* str);
+
+#endif // UART_H

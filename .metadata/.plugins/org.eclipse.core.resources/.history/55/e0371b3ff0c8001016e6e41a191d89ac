@@ -1,0 +1,59 @@
+/*
+ * joystic.c
+ *
+ *  Created on: Nov 21, 2025
+ *      Author: henryhungwy
+ */
+
+#include "../inc/joystick.h"
+
+void joystick_init(uint8_t X_axis_ADC_channel, uint8_t Y_axis_ADC_channel){
+	adc_init();
+}
+
+uint8_t joystick_read_direction(uint8_t X_axis_ADC_channel, uint8_t Y_axis_ADC_channel){
+	uint32_t x_val, y_val;
+	int x_dir = X_DIR_CENTER;
+	int y_dir = Y_DIR_CENTER;
+
+	x_val = adc_read(X_axis_ADC_channel);
+	y_val = adc_read(Y_axis_ADC_channel);
+
+	if (x_val < X_POS_THRES_L) {
+		x_dir = X_DIR_LEFT;
+	} else if (x_val > X_POS_THRES_H) {
+		x_dir = X_DIR_RIGHT;
+	} else {
+		x_dir = X_DIR_CENTER;
+	}
+
+	if (y_val < Y_POS_THRES_L) {
+		y_dir = Y_DIR_DOWN;
+	} else if (y_val > Y_POS_THRES_H) {
+		y_dir = Y_DIR_UP;
+	} else {
+		y_dir = Y_DIR_CENTER;
+	}
+
+	if (x_dir == X_DIR_CENTER && y_dir == Y_DIR_CENTER) return JS_DIR_CENTERED;
+
+
+	if (x_dir == X_DIR_LEFT) {
+		if (y_dir == Y_DIR_UP) return JS_DIR_LEFT_UP;
+		if (y_dir == Y_DIR_DOWN) return JS_DIR_LEFT_DOWN;
+		else return JS_DIR_LEFT;
+	}
+
+	// Right combinations
+	if (x_dir == X_DIR_RIGHT) {
+		if (y_dir == Y_DIR_UP) return JS_DIR_RIGHT_UP;
+		if (y_dir == Y_DIR_DOWN) return JS_DIR_RIGHT_DOWN;
+		return JS_DIR_RIGHT;
+	}
+
+	// Vertical only (X is center)
+	if (y_dir == Y_DIR_UP) return JS_DIR_UP;
+	if (y_dir == Y_DIR_DOWN) return JS_DIR_DOWN;
+
+	return JS_DIR_CENTERED;
+}

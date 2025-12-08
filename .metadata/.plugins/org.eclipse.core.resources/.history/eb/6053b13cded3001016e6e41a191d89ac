@@ -1,0 +1,24 @@
+/*
+ * gpio.h
+ *
+ * Bare-metal GPIO driver for PA5 (LED) for STM32C0.
+ * This is the header file for your driver.
+ */
+
+#ifndef GPIO_H
+#define GPIO_H
+
+#include <stdbool.h> // Required for the 'bool' type
+
+/**
+ * @brief Initializes GPIOA Pin 5 as a push-pull output.
+ */
+void led_init(void);
+
+/**
+ * @brief Writes xxaa state (true=HIGH, false=LOW) to the PA5 LED.
+ * @param state The desired state: true for ON, false for OFF.
+ */
+void gpio_write_led(bool state);
+
+#endif // GPIO_H

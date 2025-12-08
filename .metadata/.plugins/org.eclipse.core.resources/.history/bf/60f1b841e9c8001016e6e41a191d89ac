@@ -1,0 +1,32 @@
+/*
+ * my_vector.h
+ *
+ *  Created on: Nov 22, 2025
+ *      Author: henryhungwy
+ */
+
+#pragma once
+
+
+#include <stdint.h>
+
+typedef struct{
+	float x;
+	float y;
+}my_vectorf;
+
+
+typedef struct{
+	int32_t x;
+	int32_t y;
+}my_vector;
+
+
+my_vector Vectorf2Vector(Vectorf v);
+my_vector NewVector(int32_t x, int32_t y);
+my_vectorf NewVectorf(float x, float y);
+
+my_vector VectorAdd(Vector v, Vector w);
+my_vectorf VectorfAdd(Vector v, Vectorf w);
+my_vectorf VectorffAdd(Vectorf v, Vectorf w);
+my_vectorf VectorfMul(Vectorf v, float t);

@@ -1,0 +1,6 @@
+../Core/peripherals/Src/spi.c:17:6:spi_gpio_init	4	static
+../Core/peripherals/Src/spi.c:46:6:spi1_config	4	static
+../Core/peripherals/Src/spi.c:68:6:spi1_transmit	24	static
+../Core/peripherals/Src/spi.c:82:6:spi1_receive	16	static
+../Core/peripherals/Src/spi.c:91:6:cs_enable	4	static
+../Core/peripherals/Src/spi.c:95:6:cs_disable	4	static

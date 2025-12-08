@@ -1,0 +1,4 @@
+../Core/Src/uart.c:19:17:compute_uart_bd	16	static
+../Core/Src/uart.c:23:6:uart_init	16	static
+../Core/Src/uart.c:38:6:uart_write_byte	16	static
+../Core/Src/uart.c:44:6:uart_write_string	16	static

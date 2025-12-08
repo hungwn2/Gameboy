@@ -1,0 +1,105 @@
+
+
+#include "gui.h"
+#include "uart.h"     // Depends only on the bare-metal UART driver
+#include <stdbool.h>
+
+#define ANSI_CLEAR_SCREEN "\x1B[2J"
+#define ANSI_CURSOR_HOME  "\x1B[H"
+
+
+
+static char to_hex_char(uint8_t nibble) {
+    nibble &= 0x0F;
+    if (nibble < 10) {
+        return nibble + '0';
+    }
+    return (nibble - 10) + 'A';
+}
+
+static void term_print_hex(uint32_t val, uint8_t digits) {
+    for (int i = (digits - 1) * 4; i >= 0; i -= 4) {
+        uart_write_byte(to_hex_char((val >> i)));
+    }
+}
+
+static void term_print_uint(uint32_t n) {
+    if (n >= 10) {
+        term_print_uint(n / 10);
+    }
+    uart_write_byte((n % 10) + '0');
+}
+
+
+static void term_goto_xy(uint8_t row, uint8_t col) {
+    // We send the ANSI code "\x1B[<row>;<col>H"
+
+    uart_write_string("\x1B["); // Escape sequence
+
+    // Convert 'row' to string
+    term_print_uint(row);
+
+    uart_write_byte(';'); // Separator
+
+    // Convert 'col' to string
+    term_print_uint(col);
+
+    uart_write_byte('H'); // Command
+}
+
+// --- Public API Functions ---
+
+void term_init(void) {
+    uart_write_string(ANSI_CLEAR_SCREEN);
+    uart_write_string(ANSI_CURSOR_HOME);
+}
+
+void term_update_dashboard(cpu_t* cpu) { // FIX: Updated to use your cpu_t
+    // --- Title ---
+    term_goto_xy(1, 1);
+    uart_write_string("--- STM32C0-6502 Emulator Dashboard ---");
+
+    // --- Registers ---
+    term_goto_xy(3, 1);
+    uart_write_string("PC: $"); term_print_hex(cpu->pc, 4);
+
+    term_goto_xy(3, 14);
+    uart_write_string("SP: $01"); term_print_hex(cpu->sp, 2);
+
+    term_goto_xy(4, 1);
+    uart_write_string(" A: $"); term_print_hex(cpu->a, 2);
+
+    term_goto_xy(4, 14);
+    uart_write_string(" X: $"); term_print_hex(cpu->x, 2);
+
+    term_goto_xy(4, 27);
+    uart_write_string(" Y: $"); term_print_hex(cpu->y, 2);
+
+    // --- Status Flags ---
+    term_goto_xy(6, 1);
+    uart_write_string("Flags (P): N V - B D I Z C");
+
+    term_goto_xy(7, 1);
+    uart_write_string("           "); // Align under the letters
+
+    uart_write_byte(cpu->p & N_FLAG ? 'N' : '.');
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & V_FLAG ? 'V' : '.');
+    uart_write_byte(' ');
+    uart_write_byte('-'); // Unused flag
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & B_FLAG ? 'B' : '.');
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & D_FLAG ? 'D' : '.');
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & I_FLAG ? 'I' : '.');
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & Z_FLAG ? 'Z' : '.');
+    uart_write_byte(' ');
+    uart_write_byte(cpu->p & C_FLAG ? 'C' : '.');
+
+    term_goto_xy(9, 1);
+    uart_write_string("--- 6502 CONSOLE OUTPUT ---");
+
+    term_goto_xy(10, 1);
+}

@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include "stm32f4xx.h"
+#include "../peripherals/inc/uart.h"
+#include "../drivers/inc/joystick.h"
+#include "../peripherals/inc/adc.h"
+
+/* Map your channels here */
+#define ADC_CH_Y 0 // PA0
+#define ADC_CH_X 1 // PA1
+
+int main(void) {
+
+    uart_init();
+
+    joystick_init(ADC_CH_X, ADC_CH_Y);
+
+    printf("Joystick & UART Initialized...\n\r");
+
+    while(1) {
+        uint8_t dir = joystick_read_direction(ADC_CH_X, ADC_CH_Y);
+
+        uint32_t raw_x = adc_read(ADC_CH_X);
+        uint32_t raw_y = adc_read(ADC_CH_Y);
+
+        printf("Raw X: %4lu | Raw Y: %4lu | Dir: ", raw_x, raw_y);
+
+        switch(dir) {
+            case JS_DIR_CENTERED:    printf("CENTER"); break;
+            case JS_DIR_LEFT:        printf("LEFT"); break;
+            case JS_DIR_RIGHT:       printf("RIGHT"); break;
+            case JS_DIR_UP:          printf("UP"); break;
+            case JS_DIR_DOWN:        printf("DOWN"); break;
+            case JS_DIR_LEFT_UP:     printf("LEFT-UP"); break;
+            case JS_DIR_LEFT_DOWN:   printf("LEFT-DOWN"); break;
+            case JS_DIR_RIGHT_UP:    printf("RIGHT-UP"); break;
+            case JS_DIR_RIGHT_DOWN:  printf("RIGHT-DOWN"); break;
+            default:                 printf("UNKNOWN"); break;
+        }
+
+        printf("\n\r");
+
+        /* Delay to make the output readable */
+        HAL_Delay(1);
+    }
+
+}

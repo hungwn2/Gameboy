@@ -1,0 +1,27 @@
+21:14:50 **** Incremental Build of configuration Debug for project 6502_Emulator ****
+make -j7 all 
+arm-none-eabi-gcc "../Core/Src/bus.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32C071xx -c -I../Core/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32C0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/bus.d" -MT"Core/Src/bus.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/bus.o"
+arm-none-eabi-gcc "../Core/Src/gui.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32C071xx -c -I../Core/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32C0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/gui.d" -MT"Core/Src/gui.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/gui.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32C071xx -c -I../Core/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32C0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/uart.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32C071xx -c -I../Core/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc -I../Drivers/STM32C0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32C0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/uart.d" -MT"Core/Src/uart.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/uart.o"
+In file included from ../Core/Src/bus.c:3:
+../Core/Inc/rom.h:24:12: warning: unsigned conversion from 'int' to 'unsigned char' changes value from '-141' to '115' [-Woverflow]
+   24 |     [0x01E]-0x8D, [0x01F]=0x00, [0x020]=0x80, //STA $8000
+      |            ^
+../Core/Inc/rom.h:26:12: warning: unsigned conversion from 'int' to 'unsigned char' changes value from '-169' to '87' [-Woverflow]
+   26 |     [0x023]-0xA9, [0x024]-0x00,
+      |            ^
+arm-none-eabi-gcc -o "6502_Emulator.elf" @"objects.list"   -mcpu=cortex-m0plus -T"/Users/henryhungwy/STM32CubeIDE/workspace_1.19.0/6502/6502_Emulator/STM32C071RBIXN_FLASH.ld" --specs=nosys.specs -Wl,-Map="6502_Emulator.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: 6502_Emulator.elf
+ 
+arm-none-eabi-size  6502_Emulator.elf 
+arm-none-eabi-objdump -h -S 6502_Emulator.elf  > "6502_Emulator.list"
+   text	   data	    bss	    dec	    hex	filename
+   8228	      4	  22072	  30304	   7660	6502_Emulator.elf
+Finished building: default.size.stdout
+ 
+Finished building: 6502_Emulator.list
+ 
+
+21:14:51 Build Finished. 0 errors, 2 warnings. (took 956ms)
+

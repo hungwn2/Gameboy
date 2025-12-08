@@ -1,0 +1,36 @@
+/*
+ * entity.h
+ *
+ *  Created on: Nov 22, 2025
+ *      Author: henryhungwy
+ */
+
+
+
+
+#pragma once
+#include <vector>
+#include <bitset>
+#include <typeindex>
+#include <unordered_map>
+#include <iostream>
+#include <utility>
+
+
+class System;
+
+
+class World;
+
+
+struct Component{
+	virtual ~Component()=default;
+};
+
+class Entity{
+
+public:
+	Entity(): components(new std:unordered_map<std::type_index, Component*>)} {};
+
+};
+

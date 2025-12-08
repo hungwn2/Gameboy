@@ -1,0 +1,42 @@
+/* ecs.h */
+#pragma once
+#include <stdint.h>
+
+#define ECS_MAX_ENTITIES   64U
+#define ECS_COMP_POSITION  (1U << 0)
+#define ECS_COMP_VELOCITY  (1U << 1)
+#define ECS_COMP_SPRITE    (1U << 2)
+#define ECS_COMP_PLAYER    (1U << 3)
+
+typedef uint8_t EntityID;
+
+
+
+typedef enum{
+
+
+};
+
+
+typedef struct GameObject
+
+{
+	uint16_t* Sprite;
+	int FlipSprite;
+	my_vector position;
+	my_vector velocity;
+	my_vector PositionInt;
+	my_vector Size;
+	uin16_t Alpha;
+	uint16_t Collides;
+	uint8_t Frame;
+	uint8_t Type;
+	uint8_t Deactive;
+	void (*Update)(struct GameObject* this, float delta);
+}GameObject;
+
+
+int IsOverlaping(GameObject *o1, GameObject *o2);
+int isOverlapingPos(my_vector pos, my_vector size, GameObject* o2);
+GameObject* IsOver(void* skip, my_vector pos, my_vector size);
+GameObject* IsOverType(void* skip, my_vector pos, my_vector size, uint8_t type);

@@ -1,0 +1,71 @@
+#include "uart.h"
+#include "stm32c0xx.h"
+#include <stdint.h>
+
+/* Clocks */
+#define GPIOAEN   RCC_IOPENR_GPIOAEN
+#define USART2EN  RCC_APBENR1_USART2EN
+
+/* GPIO helpers: PA2/PA3 -> AF1 for USART2 */
+#define MODER_MASK(pin)   (3U << ((pin) * 2))
+#define MODER_AF(pin)     (2U << ((pin) * 2))
+#define AFRL_MASK(pin)    (0xFU << ((pin) * 4))
+#define AFRL_AF1(pin)     (0x1U << ((pin) * 4))
+
+/* USART flags */
+#define TX_READY (USART_ISR_TXE_TXFNF)
+
+/* Fixed kernel clock: HSI16 (16 MHz) */
+#define UART_KER_HZ 16000000UL
+#define UART_BAUD   115200UL
+
+static inline uint16_t brr_from(uint32_t clk_hz, uint32_t baud)
+{
+    // oversampling by 16
+    return (uint16_t)((clk_hz + (baud/2U)) / baud);
+}
+
+void uart_init(uint32_t /*unused*/)
+{
+    /* Enable clocks */
+    RCC->IOPENR  |= GPIOAEN;
+    RCC->APBENR1 |= USART2EN;
+    (void)RCC->IOPENR; (void)RCC->APBENR1;
+
+    /* Force USART2 kernel clock = HSI16 (CCIPR.USART2SEL = 0b10) */
+    RCC->CCIPR &= ~(0x3U << 2);          // clear bits [3:2]
+    RCC->CCIPR |=  (0x2U << 2);          // 10b = HSI16
+
+    /* GPIO: PA2 (TX), PA3 (RX) to AF1 */
+    GPIOA->MODER &= ~(MODER_MASK(2) | MODER_MASK(3));
+    GPIOA->MODER |=  (MODER_AF(2)   | MODER_AF(3));
+    GPIOA->AFR[0] &= ~(AFRL_MASK(2) | AFRL_MASK(3));
+    GPIOA->AFR[0] |=  (AFRL_AF1(2)  | AFRL_AF1(3));
+    // Optional pulls to keep lines clean idle-high
+    GPIOA->PUPDR &= ~((3U<<(2*2)) | (3U<<(3*2)));
+    GPIOA->PUPDR |=  ((1U<<(2*2)) | (1U<<(3*2))); // 01b = PU
+
+    /* USART config: 8-N-1, oversampling by 16, BRR from 16 MHz */
+    USART2->CR1 &= ~USART_CR1_UE;                            // disable
+    USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_OVER8);
+    USART2->CR2 &= ~USART_CR2_STOP;
+    USART2->CR3 = 0;
+
+    USART2->BRR = brr_from(UART_KER_HZ, UART_BAUD);          // = 0x008B
+
+    USART2->CR1 |= USART_CR1_TE;                             // TX enable
+    // USART2->CR1 |= USART_CR1_RE;                           // RX if needed
+    USART2->CR1 |= USART_CR1_UE;                             // enable
+    (void)USART2->ISR;
+}
+
+void uart_write_byte(int ch)
+{
+    while ((USART2->ISR & TX_READY) == 0) {}
+    USART2->TDR = (uint8_t)ch;
+}
+
+void uart_write_string(const char* s)
+{
+    while (*s) uart_write_byte(*s++);
+}

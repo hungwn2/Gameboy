@@ -1,0 +1,174 @@
+#include "cpu.h"
+#include "bus.h"
+#include <stdint.h>
+#include <string.h>
+
+static inline void set_zn_flag(cpu_t *cpu, uint8_t value){
+	if (value==0) cpu->p|=Z_FLAG;
+	else cpu->p &=~Z_FLAG;
+	if (value & 0x80) cpu->p|=N_FLAG;
+	else cpu->p &=~N_FLAG;
+}
+
+static inline void op_adc(cpu_t *cpu, uint8_t operand){
+	uint16_t sum=cpu->a+operand+(cpu->p & C_FLAG ? 1:0);
+	if (sum>0xFF) {cpu->p |=C_FLAG;}
+	else {cpu->p &=~ C_FLAG;}
+
+	//check for overflow
+	//Checks if operand and sum have same sign, and operand has a different one
+	if (~(cpu->a ^ operand) & (cpu->a ^ sum) & 0x80){
+		cpu->p|=V_FLAG;
+	}
+	else {
+		cpu->p &=~ V_FLAG;
+	}
+	cpu->a=(uint8_t)sum;
+	set_zn_flag(cpu, cpu->a);
+}
+
+void cpu_reset(cpu_t *cpu){
+	memset(cpu, 0, sizeof(cpu_t));
+	uint16_t lo=bus_read(0xFFFC);
+	uint16_t high=bus_read(0xFFFD);
+	cpu->sp=0xFD;
+	cpu->pc=(high<<8)|lo;
+	cpu->p|=U_FLAG|I_FLAG;
+
+}
+
+
+uint8_t fetch_imn(cpu_t *cpu){
+	uint8_t value=bus_read(cpu->pc);
+	cpu->pc++;
+	return value;
+}
+
+uint16_t fetch_abs(cpu_t *cpu){
+	uint16_t lo=bus_read(cpu->pc);
+	cpu->pc++;
+	uint16_t high=bus_read(cpu->pc);
+	cpu->pc++;
+	uint16_t value=(high<<8)|lo;
+	return value;
+
+}
+
+static inline void push_stack(cpu_t *cpu, uint8_t value){
+	bus_write(0x0100+cpu->sp, value);
+	cpu->sp--;
+}
+
+static inline uint8_t pull_stack(cpu_t *cpu){
+	cpu->sp++;
+	return bus_read(cpu->sp+0x0100);
+}
+
+void cpu_step(cpu_t *cpu)
+{
+	uint8_t opcode=bus_read(cpu->pc);
+	cpu->pc++;
+
+	switch(opcode){
+		case 0xEA://NOP
+		{
+			cpu->cycles+=2;
+			break;
+		}
+		case 0x4C://JMP
+		{
+			cpu->pc=fetch_abs(cpu);
+			break;
+		}
+		case 0xA9://LDA IMN
+		{
+			cpu->a=fetch_imn(cpu);
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles+=2;
+			break;
+		}
+		case 0xAD://LDA ABS
+		{
+			uint16_t addr=fetch_abs(cpu);
+			uint8_t value=bus_read(addr);
+			cpu->a=value;
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles+=4;
+			break;
+		}
+		case 0xA2://LDX IMN
+		{
+			uint8_t value=fetch_imn(cpu);
+			cpu->x=value;
+			set_zn_flag(cpu, cpu->x);
+			cpu->cycles+=2;
+			break;
+		}
+		case 0xA0: //LDY IMN
+		{
+			uint8_t value=fetch_imn(cpu);
+			cpu->y=value;
+			set_zn_flag(cpu, cpu->y);
+			cpu->cycles+=2;
+			break;
+		}
+		case 0x8D: //STA ABS
+		{
+			uint16_t addr=fetch_abs(cpu);
+			bus_write(addr, cpu->a);
+			cpu->cycles+=4;
+			break;
+		}
+		case 0x69: //ADC IMN
+		{
+			uint8_t operand=fetch_imn(cpux);
+			op_adc(cpu, operand);
+			cpu->cycles+=2;
+			break;
+		}
+		case 0x48: //PHA
+		{
+			push_stack(cpu, cpu->a);
+			cpu->cycles+=3;
+			break;
+		}
+		case 0x68://PLA
+		{
+			cpu->a=pull_stack(cpu);
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles+=4;
+			break;
+		}
+		case 0xE8: //INX
+		{
+			cpu->x++;
+			set_zn_flag(cpu, cpu->x);
+			cpu->cycles+=2;
+			break;
+		}
+		case 0xD0://BNE
+		{
+			int8_t offset=(int8_t)fetch_imn(cpu);
+			cpu->cycles+=2;
+			if (!(cpu->p & Z_FLAG)){
+				cpu->cycles++;
+				uint16_t old_pc=cpu->pc;
+				uint16_t new_pc=old_pc+offset;
+				//if high byte changes, add another cycles
+				if((old_pc & 0xFF00)!=(new_pc & 0xFF)){
+					cpu->cycles++;
+				}
+				cpu->pc=new_pc;
+			}
+			break;
+		}
+
+	    default:
+	    {
+	    	cpu->cycles+=2;
+	    	break;
+	    }
+
+
+	}
+}

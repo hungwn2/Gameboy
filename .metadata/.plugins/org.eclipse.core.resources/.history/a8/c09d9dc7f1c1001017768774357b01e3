@@ -1,0 +1,222 @@
+/*
+ * cpu.c
+ *
+ * Your CPU implementation file, now with all
+ * bugs and typos corrected.
+ */
+
+#include "cpu.h"
+#include "bus.h"
+#include <string.h>
+
+// ==========================================
+// INTERNAL (STATIC) HELPER FUNCTIONS
+// ==========================================
+
+//Set z or n flags based on value
+static inline void set_zn_flag(cpu_t *cpu, uint8_t value){
+    if (value==0) cpu->p |= FLAG_Z;
+    else cpu->p &= ~FLAG_Z;
+
+    if (value & 0x80) cpu->p |= FLAG_N;
+    else cpu->p &= ~FLAG_N;
+}
+
+// --- Fetch Helper Functions (Added) ---
+
+/**
+ * @brief Fetches an 8-bit immediate value from memory
+ * at the current PC and increments PC.
+ */
+// FIX: Return type must be 8-bit for an immediate value
+static uint8_t fetch_imn(cpu_t *cpu)
+{
+    uint8_t value = bus_read(cpu->pc);
+    cpu->pc++;
+    return value;
+}
+
+/**
+ * @brief Fetches a 16-bit absolute address from memory
+ * at the current PC and increments PC twice.
+ */
+static uint16_t fetch_abs(cpu_t *cpu)
+{
+    uint16_t lo = bus_read(cpu->pc);
+    cpu->pc++;
+    uint16_t high = bus_read(cpu->pc);
+    cpu->pc++;
+    // Combine little-endian bytes
+    uint16_t value = (high << 8) | lo;
+    return value;
+}
+
+// --- STACK Functions ---
+static inline void push_stack(cpu_t *cpu, uint8_t value){
+    bus_write(0x0100 + cpu->sp, value);
+    cpu->sp--;
+}
+
+static inline uint8_t pull_stack(cpu_t *cpu){
+    cpu->sp++;
+    // FIX: Must return the value
+    return bus_read(cpu->sp + 0x0100);
+}
+
+
+// --- ALU Logic Helpers ---
+static inline void op_adc(cpu_t *cpu, uint8_t operand){
+    uint16_t sum = cpu->a + operand + (cpu->p & FLAG_C ? 1:0);
+
+    if (sum > 0xFF) {
+        cpu->p |= FLAG_C;
+    }
+    else {
+        cpu->p &= ~FLAG_C;
+    }
+
+    //check for overflow
+    if (~(cpu->a ^ operand) & (cpu->a ^ sum) & 0x80){
+        cpu->p |= FLAG_V;
+    }
+    else {
+        cpu->p &= ~V_FLAG;
+    }
+
+    cpu->a = (uint8_t)sum;
+    set_zn_flag(cpu, cpu->a);
+}
+
+// ==========================================
+// PUBLIC (API) FUNCTIONS
+// ==========================================
+
+void cpu_reset(cpu_t *cpu){
+    // FIX 1: Correct memset arguments (dest, value, size)
+    // This clears the struct to all 0s.
+	memset(cpu, 0, sizeof(cpu_t));
+
+    // FIX 2: Reset vector is at $FFFC/$FFFD
+	uint16_t lo = bus_read(0xFFFC);
+	uint16_t hi = bus_read(0xFFFD);
+
+	cpu->sp = 0xFD;
+	cpu->pc = (hi << 8) | lo;
+
+    // Set default flags (Unused and Interrupt Disable)
+	cpu->p = FLAG_U | FLAG_I;
+}
+
+
+void cpu_step(cpu_t *cpu){
+	uint8_t opcode = bus_read(cpu->pc);
+	cpu->pc++;
+
+	switch(opcode){
+		case 0xEA://NOP
+		{
+			cpu->cycles += 2;
+			break; // FIX: Added missing break
+		}
+		case 0x4C://JMP
+		{
+			cpu->pc = fetch_abs(cpu);
+            cpu->cycles += 3; // Add cycle cost
+			break; // FIX: Added missing break
+		}
+		case 0xA9://LDA IMN
+		{
+			cpu->a = fetch_imn(cpu);
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles += 2;
+			break; // FIX: Added missing break
+		}
+		case 0xAD://LDA ABS
+		{
+			uint16_t addr = fetch_abs(cpu);
+			uint8_t value = bus_read(addr);
+			cpu->a = value;
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles += 4;
+			break; // FIX: Added missing break
+		}
+		case 0xA2://LDX IMN
+		{
+			uint8_t value = fetch_imn(cpu);
+			cpu->x = value;
+            // FIX: Set flags for X, not Y
+			set_zn_flag(cpu, cpu->x);
+			cpu->cycles += 2;
+			break; // FIX: Added missing break
+		}
+		case 0xA0: //LDY IMN
+		{
+			uint8_t value = fetch_imn(cpu);
+			cpu->y = value;
+			set_zn_flag(cpu, cpu->y);
+			cpu->cycles += 2;
+			break; // FIX: Added missing break
+		}
+		case 0x8D: //STA ABS
+		{
+			uint16_t addr = fetch_abs(cpu);
+			bus_write(addr, cpu->a);
+			cpu->cycles += 4;
+			break;
+		}
+		case 0x69: //ADC IMN
+		{
+			uint8_t operand = fetch_imn(cpu);
+			op_adc(cpu, operand);
+			cpu->cycles += 2;
+			break;
+		}
+		case 0x48: //PHA
+		{
+			push_stack(cpu, cpu->a);
+			cpu->cycles += 3;
+			break;
+		}
+		case 0x68://PLA
+		{
+            // FIX: pull_stack takes no arguments
+			cpu->a = pull_stack(cpu);
+			set_zn_flag(cpu, cpu->a);
+			cpu->cycles += 4;
+			break;
+		}
+		case 0xE8: //INX
+		{
+			cpu->x++;
+			set_zn_flag(cpu, cpu->x);
+			cpu->cycles += 2;
+			break;
+		}
+		case 0xD0://BNE
+		{
+			int8_t offset = (int8_t)fetch_imn(cpu);
+			cpu->cycles += 2;
+
+			if (!(cpu->p & FLAG_Z)){
+				cpu->cycles++;
+                // FIX: PC must be 16-bit for page cross
+				uint16_t old_pc = cpu->pc;
+				uint16_t new_pc = old_pc + offset;
+
+				//if high byte changes, add another cycles
+                // FIX: Check new_pc high byte
+				if((old_pc & 0xFF00) != (new_pc & 0xFF00)){
+					cpu->cycles++;
+				}
+				cpu->pc = new_pc;
+			}
+			break;
+		}
+
+	    default:
+	    {
+	    	cpu->cycles += 2;
+	    	break;
+	    }
+	}
+}

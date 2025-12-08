@@ -1,0 +1,34 @@
+// main.c
+
+#include "systick.h"
+#include "uart.h"
+#include <stdint.h>
+#include "stm32c0xx.h"
+
+// Default reset clock on STM32C071: HSISYS = HSI48 / 4 = 12 MHz
+#define SYS_CLOCK_FREQ 12000000UL
+
+void delay_ms(uint32_t ms)
+{
+    uint32_t start_time = systick_get_ms();
+    while ((systick_get_ms() - start_time) < ms) {
+        // busy wait
+    }
+}
+
+int main(void)
+{
+    // DO NOT reconfigure RCC here – use default 12 MHz
+    systick_init(SYS_CLOCK_FREQ);
+    uart_init(SYS_CLOCK_FREQ);
+
+    uart_write_string("\r\n--- UART DRIVER TEST ---\r\n");
+    uart_write_string("CLOCK = 12 MHz (reset default)\r\n");
+    uart_write_string("If you see this, UART is good.\r\n");
+
+    while (1)
+    {
+        uart_write_string("HEARTBEAT - OK\r\n");
+        delay_ms(1000);
+    }
+}

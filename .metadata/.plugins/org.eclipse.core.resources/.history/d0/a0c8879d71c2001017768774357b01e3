@@ -1,0 +1,56 @@
+/**
+ * main.c
+ *
+ * This is a simple test program to verify that the
+ * bare-metal UART and SysTick drivers are working.
+ *
+ * It will print a "HEARTBEAT" message to the terminal
+ * once per second.
+ */
+
+// Bare-Metal Drivers
+#include "systick.h"
+#include "uart.h"
+#include <stdint.h>
+
+// --- Clock Configuration ---
+// FIX: We assume the 16MHz default HSI clock for the C071RB
+// This MUST match the clock your chip is actually running at.
+#define SYS_CLOCK_FREQ 48000000UL
+
+/**
+ * @brief A simple blocking delay function.
+ * @param ms Milliseconds to wait.
+ */
+void delay_ms(uint32_t ms)
+{
+    uint32_t start_time = systick_get_ms();
+    while ((systick_get_ms() - start_time) < ms)
+    {
+        // Wait
+    }
+}
+
+
+int main(void)
+{
+    // --- 1. Init Hardware Drivers (Layer 0) ---
+    // We assume the default startup file set the 16MHz clock.
+    systick_init(SYS_CLOCK_FREQ);
+    uart_init(SYS_CLOCK_FREQ); // UART baud rate will now be correct
+
+    // --- 2. Send a startup message ---
+    uart_write_string("\r\n--- UART DRIVER TEST ---\r\n");
+    uart_write_string("CLOCK ASSUMED: 16 MHz\r\n");
+    uart_write_string("If you see this, your UART is working!\r\n");
+
+    // --- 3. Run the main "heartbeat" loop ---
+    while (1)
+    {
+        // Print a message
+        uart_write_string("HEARTBEAT - OK\r\n");
+
+        // Wait for 1 second
+        delay_ms(1000);
+    }
+}
