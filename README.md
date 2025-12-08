@@ -1,0 +1,1 @@
+Uses the STM32C0 board to emulate the instruction set, bus, ROM/RAM of the 6502 IC. It uses UART at port 0x8000 to print text and GPIO at port 0xF001 to blink an LED, and houses a simple program in its ROM that writes "HELLO" over a serial port.
