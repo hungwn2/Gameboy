@@ -1,3 +1,0 @@
-../Core/Src/bus.c:8:6:bus_reset	8	static
-../Core/Src/bus.c:15:9:bus_read	16	static
-../Core/Src/bus.c:29:6:bus_write	16	static

@@ -1,2 +1,0 @@
-../Core/Src/gpio.c:21:6:led_init	8	static
-../Core/Src/gpio.c:27:6:gpio_write_led	16	static

@@ -1,5 +1,0 @@
-../Core/Src/gui.c:6:13:to_hex_char	16	static
-../Core/Src/gui.c:14:13:term_print_hex	24	static
-../Core/Src/gui.c:21:13:term_print_uint	16	static
-../Core/Src/gui.c:33:6:term_init	8	static
-../Core/Src/gui.c:38:6:term_update_dashboard	16	static

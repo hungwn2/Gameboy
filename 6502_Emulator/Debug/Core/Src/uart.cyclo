@@ -1,4 +1,0 @@
-../Core/Src/uart.c:19:17:compute_uart_bd	1
-../Core/Src/uart.c:23:6:uart_init	1
-../Core/Src/uart.c:38:6:uart_write_byte	2
-../Core/Src/uart.c:44:6:uart_write_string	2
