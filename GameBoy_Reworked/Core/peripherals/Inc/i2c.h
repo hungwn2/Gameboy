@@ -5,9 +5,11 @@
  *      Author: henryhungwy
  */
 
-#ifndef INC_I2C_H_
-#define INC_I2C_H_
+#ifndef I2C_H_
+#define I2C_H_
 
-
-
-#endif /* INC_I2C_H_ */
+void i2c1_init(void);
+void i2c1_byte_read(char saddr, char maddr, char* data);
+void i2c1_burst_read(char saddr, char maddr, int n, char* data);
+void i2c1_burst_write(char saddr, char maddr, int n, char* data);
+#endif
